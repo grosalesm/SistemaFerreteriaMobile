@@ -9,6 +9,8 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -24,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.ferreteria.mobile.data.Carrito
 import com.ferreteria.mobile.ui.carrito.CarritoScreen
 import com.ferreteria.mobile.ui.catalogo.CatalogoScreen
 import com.ferreteria.mobile.ui.cotizaciones.CotizacionesScreen
@@ -42,6 +45,14 @@ val pestanas = listOf(
     Pestana("pedidos", "Pedidos", Icons.Filled.CheckCircle),
     Pestana("perfil", "Perfil", Icons.Filled.Person)
 )
+
+fun irAPestana(navController: NavHostController, ruta: String) {
+    navController.navigate(ruta) {
+        popUpTo("catalogo") { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
 
 fun irAlLogin(navController: NavHostController) {
     navController.navigate("login") {
@@ -70,14 +81,16 @@ fun AppNavegacion() {
                     for (pestana in pestanas) {
                         NavigationBarItem(
                             selected = rutaActual == pestana.ruta,
-                            onClick = {
-                                navController.navigate(pestana.ruta) {
-                                    popUpTo("catalogo") { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
+                            onClick = { irAPestana(navController, pestana.ruta) },
+                            icon = {
+                                if (pestana.ruta == "carrito" && Carrito.items.isNotEmpty()) {
+                                    BadgedBox(badge = { Badge { Text("${Carrito.items.size}") } }) {
+                                        Icon(pestana.icono, contentDescription = pestana.titulo)
+                                    }
+                                } else {
+                                    Icon(pestana.icono, contentDescription = pestana.titulo)
                                 }
                             },
-                            icon = { Icon(pestana.icono, contentDescription = pestana.titulo) },
                             label = { Text(pestana.titulo) }
                         )
                     }
@@ -109,7 +122,7 @@ fun AppNavegacion() {
                 CatalogoScreen()
             }
             composable("carrito") {
-                CarritoScreen()
+                CarritoScreen(alVerCotizaciones = { irAPestana(navController, "cotizaciones") })
             }
             composable("cotizaciones") {
                 CotizacionesScreen()
