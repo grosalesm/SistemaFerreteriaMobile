@@ -22,15 +22,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.ferreteria.mobile.data.Carrito
 import com.ferreteria.mobile.ui.carrito.CarritoScreen
 import com.ferreteria.mobile.ui.catalogo.CatalogoScreen
 import com.ferreteria.mobile.ui.cotizaciones.CotizacionesScreen
+import com.ferreteria.mobile.ui.cotizaciones.DetalleCotizacionScreen
 import com.ferreteria.mobile.ui.login.LoginScreen
+import com.ferreteria.mobile.ui.pedidos.DetallePedidoScreen
 import com.ferreteria.mobile.ui.pedidos.PedidosScreen
 import com.ferreteria.mobile.ui.perfil.PerfilScreen
 import com.ferreteria.mobile.ui.registro.RegistroScreen
@@ -125,10 +129,32 @@ fun AppNavegacion() {
                 CarritoScreen(alVerCotizaciones = { irAPestana(navController, "cotizaciones") })
             }
             composable("cotizaciones") {
-                CotizacionesScreen()
+                CotizacionesScreen(alAbrirCotizacion = { id -> navController.navigate("cotizacion/$id") })
+            }
+            composable(
+                route = "cotizacion/{id}",
+                arguments = listOf(navArgument("id") { type = NavType.LongType })
+            ) { entrada ->
+                DetalleCotizacionScreen(
+                    idCotizacion = entrada.arguments?.getLong("id") ?: 0,
+                    alVolver = { navController.popBackStack() },
+                    alVerPedidos = {
+                        navController.popBackStack()
+                        irAPestana(navController, "pedidos")
+                    }
+                )
             }
             composable("pedidos") {
-                PedidosScreen()
+                PedidosScreen(alAbrirPedido = { id -> navController.navigate("pedido/$id") })
+            }
+            composable(
+                route = "pedido/{id}",
+                arguments = listOf(navArgument("id") { type = NavType.LongType })
+            ) { entrada ->
+                DetallePedidoScreen(
+                    idPedido = entrada.arguments?.getLong("id") ?: 0,
+                    alVolver = { navController.popBackStack() }
+                )
             }
             composable("perfil") {
                 PerfilScreen(alCerrarSesion = { irAlLogin(navController) })

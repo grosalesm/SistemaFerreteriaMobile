@@ -7,7 +7,9 @@ import com.ferreteria.mobile.data.model.Cotizacion
 import com.ferreteria.mobile.data.model.CotizacionRequest
 import com.ferreteria.mobile.data.model.LoginRequest
 import com.ferreteria.mobile.data.model.LoginResponse
+import com.ferreteria.mobile.data.model.Pedido
 import com.ferreteria.mobile.data.model.Producto
+import com.ferreteria.mobile.data.model.RechazoRequest
 import com.ferreteria.mobile.data.model.RegistroRequest
 import com.ferreteria.mobile.data.model.UsuarioResponse
 import retrofit2.http.Body
@@ -51,4 +53,25 @@ interface ApiService {
 
     @POST("api/cotizaciones/{id}/enviar")
     suspend fun enviarCotizacion(@Path("id") id: Long): Cotizacion
+
+    @GET("api/cotizaciones")
+    suspend fun listarCotizaciones(): List<Cotizacion>
+
+    @GET("api/cotizaciones/{id}")
+    suspend fun obtenerCotizacion(@Path("id") id: Long): Cotizacion
+
+    @POST("api/cotizaciones/{id}/aprobar")
+    suspend fun aprobarCotizacion(@Path("id") id: Long): Cotizacion
+
+    @POST("api/cotizaciones/{id}/rechazar")
+    suspend fun rechazarCotizacion(@Path("id") id: Long, @Body request: RechazoRequest): Cotizacion
+
+    @POST("api/cotizaciones/{id}/reenviar")
+    suspend fun reenviarCotizacion(@Path("id") id: Long): Cotizacion
+
+    @GET("api/pedidos")
+    suspend fun listarPedidos(): List<Pedido>
+
+    @GET("api/pedidos/{id}")
+    suspend fun obtenerPedido(@Path("id") id: Long): Pedido
 }

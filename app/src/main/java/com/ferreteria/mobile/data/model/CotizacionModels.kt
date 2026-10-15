@@ -11,6 +11,10 @@ data class ItemRequest(
     val cantidad: Int
 )
 
+data class RechazoRequest(
+    val motivo: String
+)
+
 data class Cotizacion(
     val idCotizacion: Long?,
     val codigo: String?,

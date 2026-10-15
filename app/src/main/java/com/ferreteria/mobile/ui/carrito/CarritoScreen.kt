@@ -27,7 +27,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +51,7 @@ import com.ferreteria.mobile.data.Carrito
 import com.ferreteria.mobile.data.ItemCarrito
 import com.ferreteria.mobile.data.model.Cotizacion
 import com.ferreteria.mobile.data.model.ItemCotizacion
+import com.ferreteria.mobile.ui.componentes.TablaTotales
 import com.ferreteria.mobile.util.formatearPorcentaje
 import com.ferreteria.mobile.util.formatearSoles
 import kotlinx.coroutines.delay
@@ -242,24 +242,8 @@ fun ResumenTotales(simulacion: Cotizacion?, calculando: Boolean) {
             if (simulacion == null) {
                 Text("Calculando totales...")
             } else {
-                FilaTotal("Subtotal", formatearSoles(simulacion.subtotal))
-                FilaTotal("Descuento", "- " + formatearSoles(simulacion.descuentoTotal))
-                FilaTotal("IGV incluido (18 %)", formatearSoles(simulacion.igv))
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                FilaTotal("Total", formatearSoles(simulacion.total), negrita = true)
+                TablaTotales(simulacion)
             }
         }
-    }
-}
-
-@Composable
-fun FilaTotal(etiqueta: String, valor: String, negrita: Boolean = false) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = etiqueta,
-            modifier = Modifier.weight(1f),
-            fontWeight = if (negrita) FontWeight.Bold else FontWeight.Normal
-        )
-        Text(text = valor, fontWeight = if (negrita) FontWeight.Bold else FontWeight.Normal)
     }
 }
