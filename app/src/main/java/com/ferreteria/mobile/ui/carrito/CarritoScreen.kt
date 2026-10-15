@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ferreteria.mobile.ui.componentes.CampanaNotificaciones
 import com.ferreteria.mobile.data.Carrito
 import com.ferreteria.mobile.data.ItemCarrito
 import com.ferreteria.mobile.data.model.Cotizacion
@@ -60,6 +61,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun CarritoScreen(
     alVerCotizaciones: () -> Unit,
+    alAbrirNotificaciones: () -> Unit,
     viewModel: CarritoViewModel = viewModel()
 ) {
     LaunchedEffect(Carrito.items.toList(), Carrito.idAlmacen) {
@@ -85,7 +87,12 @@ fun CarritoScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Carrito") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Carrito") },
+                actions = { CampanaNotificaciones(alAbrir = alAbrirNotificaciones) }
+            )
+        }
     ) { padding ->
         if (Carrito.items.isEmpty()) {
             Box(

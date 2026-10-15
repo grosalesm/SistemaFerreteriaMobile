@@ -1,5 +1,14 @@
 package com.ferreteria.mobile.data.model
 
+data class ClienteRequest(
+    val tipoDocumento: String?,
+    val numeroDocumento: String?,
+    val nombreRazonSocial: String?,
+    val telefono: String?,
+    val email: String?,
+    val direccion: String?
+)
+
 data class Cliente(
     val idCliente: Long,
     val tipoDocumento: String?,

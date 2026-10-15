@@ -3,10 +3,12 @@ package com.ferreteria.mobile.data
 import com.ferreteria.mobile.data.model.Almacen
 import com.ferreteria.mobile.data.model.Categoria
 import com.ferreteria.mobile.data.model.Cliente
+import com.ferreteria.mobile.data.model.ClienteRequest
 import com.ferreteria.mobile.data.model.Cotizacion
 import com.ferreteria.mobile.data.model.CotizacionRequest
 import com.ferreteria.mobile.data.model.LoginRequest
 import com.ferreteria.mobile.data.model.LoginResponse
+import com.ferreteria.mobile.data.model.Notificacion
 import com.ferreteria.mobile.data.model.Pedido
 import com.ferreteria.mobile.data.model.Producto
 import com.ferreteria.mobile.data.model.RechazoRequest
@@ -14,7 +16,9 @@ import com.ferreteria.mobile.data.model.RegistroRequest
 import com.ferreteria.mobile.data.model.UsuarioResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -74,4 +78,13 @@ interface ApiService {
 
     @GET("api/pedidos/{id}")
     suspend fun obtenerPedido(@Path("id") id: Long): Pedido
+
+    @PUT("api/clientes/me")
+    suspend fun actualizarMiCliente(@Body request: ClienteRequest): Cliente
+
+    @GET("api/notificaciones")
+    suspend fun listarNotificaciones(@Query("soloNoLeidas") soloNoLeidas: Boolean): List<Notificacion>
+
+    @PATCH("api/notificaciones/{id}/leida")
+    suspend fun marcarLeida(@Path("id") id: Long): Notificacion
 }

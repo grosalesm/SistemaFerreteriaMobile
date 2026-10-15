@@ -2,6 +2,7 @@ package com.ferreteria.mobile.ui.navegacion
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -15,10 +16,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
@@ -28,12 +32,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.ferreteria.mobile.data.AvisosEnVivo
 import com.ferreteria.mobile.data.Carrito
+import com.ferreteria.mobile.data.RetrofitClient
 import com.ferreteria.mobile.ui.carrito.CarritoScreen
 import com.ferreteria.mobile.ui.catalogo.CatalogoScreen
 import com.ferreteria.mobile.ui.cotizaciones.CotizacionesScreen
 import com.ferreteria.mobile.ui.cotizaciones.DetalleCotizacionScreen
 import com.ferreteria.mobile.ui.login.LoginScreen
+import com.ferreteria.mobile.ui.notificaciones.NotificacionesScreen
 import com.ferreteria.mobile.ui.pedidos.DetallePedidoScreen
 import com.ferreteria.mobile.ui.pedidos.PedidosScreen
 import com.ferreteria.mobile.ui.perfil.PerfilScreen
@@ -70,17 +77,52 @@ fun AppNavegacion() {
     val entradaActual by navController.currentBackStackEntryAsState()
     val rutaActual = entradaActual?.destination?.route
     val inicio = if (SessionManager.haySesion()) "catalogo" else "login"
+    val enSesion = rutaActual != null && rutaActual != "login" && rutaActual != "registro"
+    val conBarra = pestanas.any { it.ruta == rutaActual }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val abrirNotificaciones = { navController.navigate("notificaciones") }
 
     LaunchedEffect(SessionManager.sesionExpirada) {
         if (SessionManager.sesionExpirada && rutaActual != "login") {
+            AvisosEnVivo.desconectar()
+            Carrito.vaciar()
             irAlLogin(navController)
+        }
+    }
+
+    LaunchedEffect(enSesion) {
+        if (enSesion) {
+            try {
+                AvisosEnVivo.noLeidas = RetrofitClient.api.listarNotificaciones(true).size
+            } catch (e: Exception) {
+            }
+        }
+    }
+
+    LaunchedEffect(rutaActual) {
+        if (enSesion) {
+            AvisosEnVivo.conectar()
+        }
+    }
+
+    LaunchedEffect(AvisosEnVivo.ultimoAviso) {
+        val aviso = AvisosEnVivo.ultimoAviso
+        if (aviso != null) {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            snackbarHostState.showSnackbar("${aviso.titulo}: ${aviso.mensaje}")
         }
     }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = if (conBarra) Modifier else Modifier.navigationBarsPadding()
+            )
+        },
         bottomBar = {
-            if (pestanas.any { it.ruta == rutaActual }) {
+            if (conBarra) {
                 NavigationBar {
                     for (pestana in pestanas) {
                         NavigationBarItem(
@@ -123,13 +165,19 @@ fun AppNavegacion() {
                 RegistroScreen(alVolver = { navController.popBackStack() })
             }
             composable("catalogo") {
-                CatalogoScreen()
+                CatalogoScreen(alAbrirNotificaciones = abrirNotificaciones)
             }
             composable("carrito") {
-                CarritoScreen(alVerCotizaciones = { irAPestana(navController, "cotizaciones") })
+                CarritoScreen(
+                    alVerCotizaciones = { irAPestana(navController, "cotizaciones") },
+                    alAbrirNotificaciones = abrirNotificaciones
+                )
             }
             composable("cotizaciones") {
-                CotizacionesScreen(alAbrirCotizacion = { id -> navController.navigate("cotizacion/$id") })
+                CotizacionesScreen(
+                    alAbrirCotizacion = { id -> navController.navigate("cotizacion/$id") },
+                    alAbrirNotificaciones = abrirNotificaciones
+                )
             }
             composable(
                 route = "cotizacion/{id}",
@@ -145,7 +193,10 @@ fun AppNavegacion() {
                 )
             }
             composable("pedidos") {
-                PedidosScreen(alAbrirPedido = { id -> navController.navigate("pedido/$id") })
+                PedidosScreen(
+                    alAbrirPedido = { id -> navController.navigate("pedido/$id") },
+                    alAbrirNotificaciones = abrirNotificaciones
+                )
             }
             composable(
                 route = "pedido/{id}",
@@ -157,7 +208,17 @@ fun AppNavegacion() {
                 )
             }
             composable("perfil") {
-                PerfilScreen(alCerrarSesion = { irAlLogin(navController) })
+                PerfilScreen(
+                    alCerrarSesion = { irAlLogin(navController) },
+                    alAbrirNotificaciones = abrirNotificaciones
+                )
+            }
+            composable("notificaciones") {
+                NotificacionesScreen(
+                    alVolver = { navController.popBackStack() },
+                    alAbrirCotizacion = { id -> navController.navigate("cotizacion/$id") },
+                    alAbrirPedido = { id -> navController.navigate("pedido/$id") }
+                )
             }
         }
     }

@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ferreteria.mobile.ui.componentes.CampanaNotificaciones
 import com.ferreteria.mobile.data.model.Cotizacion
 import com.ferreteria.mobile.ui.componentes.EstadoEtiqueta
 import com.ferreteria.mobile.util.formatearFecha
@@ -37,6 +38,7 @@ import com.ferreteria.mobile.util.formatearSoles
 @Composable
 fun CotizacionesScreen(
     alAbrirCotizacion: (Long) -> Unit,
+    alAbrirNotificaciones: () -> Unit,
     viewModel: CotizacionesViewModel = viewModel()
 ) {
     LaunchedEffect(Unit) {
@@ -51,6 +53,7 @@ fun CotizacionesScreen(
                     IconButton(onClick = { viewModel.cargar() }) {
                         Icon(Icons.Filled.Refresh, contentDescription = "Actualizar")
                     }
+                    CampanaNotificaciones(alAbrir = alAbrirNotificaciones)
                 }
             )
         }

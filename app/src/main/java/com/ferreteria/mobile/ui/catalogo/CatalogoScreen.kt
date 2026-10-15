@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ferreteria.mobile.ui.componentes.CampanaNotificaciones
 import com.ferreteria.mobile.data.Carrito
 import com.ferreteria.mobile.data.model.Producto
 import com.ferreteria.mobile.util.formatearPorcentaje
@@ -50,12 +51,20 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CatalogoScreen(viewModel: CatalogoViewModel = viewModel()) {
+fun CatalogoScreen(
+    alAbrirNotificaciones: () -> Unit,
+    viewModel: CatalogoViewModel = viewModel()
+) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Catálogo") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Catálogo") },
+                actions = { CampanaNotificaciones(alAbrir = alAbrirNotificaciones) }
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
